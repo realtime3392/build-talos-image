@@ -1,20 +1,28 @@
 #!/bin/bash
 
+u_boot_dir="$(dirname -- "$0")"
+build_talos_image_dir="$(dirname -- "${u_boot_dir}")"
+
+. "${build_talos_image_dir}/buildenv.sh"
+
+cd "${u_boot_dir}"
+
+UBOOT_BRANCH='next'
+UBOOT="${UBOOT_BRANCH}"
+
 # set -x
 renice -n 19 $$
 
 export CROSS_COMPILE=aarch64-linux-gnu-
 
-docker rmi 127.0.0.1:5000/ubootbash:latest || true
+docker rmi "${REGISTRY}/ubootbash:latest" || true
 
 rm -Rf build
-git clone --depth 1 -b next https://github.com/u-boot/u-boot.git build
+git clone ${TALOS_GIT_FLAGS} --branch "${UBOOT}" https://github.com/u-boot/u-boot.git build
 
 cp -v Dockerfile build
 
 cd build
-
-
 
 #RPI_ARM64_GENERIC_U_BOOT=rpi_generic_u-boot
 
@@ -41,8 +49,8 @@ sed -i "s/CONFIG_TOOLS_LIBCRYPTO=y/# CONFIG_TOOLS_LIBCRYPTO is not set/" .config
 make -j $(nproc) HOSTLDLIBS_mkimage="-lssl -lcrypto"
 
 
-docker build -t 127.0.0.1:5000/ubootbash:latest . && docker push 127.0.0.1:5000/ubootbash:latest
+docker build -t "${REGISTRY}/ubootbash:latest" . && docker push "${REGISTRY}/ubootbash:latest"
 
 #nice -n 19 aarch64-linux-gnu-objdump -S -D u-boot > /tmp/disassembled.asm
 
-cd ..
+cd "${build_talos_image_dir}"

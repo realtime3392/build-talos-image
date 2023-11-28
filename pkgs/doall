@@ -1,11 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
-PKGSBRANCH=v1.5.0
+talos_pkgs_dir="$(dirname -- "$0")"
+build_talos_image_dir="$(dirname -- "${talos_pkgs_dir}")"
+
+. "${build_talos_image_dir}/buildenv.sh"
+
+cd "${talos_pkgs_dir}"
 
 renice -n 19 $$
 
 rm -Rf build
-git clone --depth 1 -b $PKGSBRANCH https://github.com/siderolabs/pkgs build
+git clone ${TALOS_GIT_FLAGS} --branch "${TALOSPKGS}" "https://github.com/${TALOS_PKGS_GITHUB}" build
 
 mkdir build/kernel/prepare/patches
 cp patch_2_of_5.patch build/kernel/prepare/patches
@@ -19,6 +24,6 @@ git apply add_patch_2_of_5.patch
 sed -i 's/kconfig-hardened-check/kernel-hardening-checker/g' kernel/build/pkg.yaml
 sed -i 's/kconfig-hardened-check/kernel-hardening-checker/g' kernel/prepare/pkg.yaml
 
-make -j$(nproc) USERNAME=rsmitty PUSH=true PLATFORM=linux/arm64 REGISTRY=127.0.0.1:5000 kernel 
+make -j$(nproc) USERNAME="${USERNAME}" PUSH=true PLATFORM=linux/arm64 REGISTRY="${REGISTRY}" kernel 
 
-cd ..
+cd "${build_talos_image_dir}"

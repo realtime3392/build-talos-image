@@ -40,7 +40,7 @@ sudo apt install gcc-aarch64-linux-gnu
 
     get a lot of coffee.
 
-    When succesfull you should see a ```"PUT /v2/rsmitty/kernel/manifests/v1.5.0-9-g7f9d6eb-dirty HTTP/1.1"``` in your registry log.
+    When succesfull you should see a ```"PUT /v2/tlarsen/kernel/manifests/v1.5.0-9-g7f9d6eb-dirty HTTP/1.1"``` in your registry log.
 
 4) Build a talos image
 
